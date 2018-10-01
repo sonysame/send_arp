@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
   }
   pcap_sendpacket(fp, packet1, packet1_len);
 
-  u_char target_mac_address[6];
+  u_char target_mac_address[ETHER_ADDR_LEN];
   
   while (1) {
     struct pcap_pkthdr* header;
