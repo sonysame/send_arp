@@ -69,30 +69,30 @@ void get_ip(char * interface, struct in_addr * ip){
 	int fd;
 	struct ifreq ifr;
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
-    ifr.ifr_addr.sa_family = AF_INET;
-    strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
-    ioctl(fd, SIOCGIFADDR, &ifr);
-    close(fd);
-    *ip=((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr;
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
+	ioctl(fd, SIOCGIFADDR, &ifr);
+	close(fd);
+	*ip=((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr;
 }
 
 void get_mac_address(u_char * addr){
 	struct ifreq ifr;
-    struct ifconf ifc;
-    char buf[1024];
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-    ifc.ifc_len = sizeof(buf);
-    ifc.ifc_buf = buf;
-    ioctl(sock, SIOCGIFCONF, &ifc);
-    struct ifreq* it = ifc.ifc_req;
-    const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
-    for (; it != end; ++it) {
-        strcpy(ifr.ifr_name, it->ifr_name);
-        if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
-            if (! (ifr.ifr_flags & IFF_LOOPBACK)) { 
-                if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
-                 	memcpy(addr, ifr.ifr_hwaddr.sa_data, 6);   
-                    break;
+	struct ifconf ifc;
+	char buf[1024];
+	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = buf;
+	ioctl(sock, SIOCGIFCONF, &ifc);
+	struct ifreq* it = ifc.ifc_req;
+	const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
+	for (; it != end; ++it) {
+		strcpy(ifr.ifr_name, it->ifr_name);
+		if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
+			if (! (ifr.ifr_flags & IFF_LOOPBACK)) { 
+				if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
+					memcpy(addr, ifr.ifr_hwaddr.sa_data, 6);   
+					break;
                 }
             }
         }
@@ -132,8 +132,8 @@ uint32_t make_arp_packet(u_char * p, struct in_addr ip1, struct in_addr ip2, u_c
 
 int main(int argc, char* argv[]) {
   if (argc != 4) {
-    usage();
-    return -1;
+  	usage();
+  	return -1;
   }
   char* dev = argv[1];
   struct in_addr send_ip, target_ip;
@@ -158,14 +158,14 @@ int main(int argc, char* argv[]) {
   u_char target_mac_address[ETHER_ADDR_LEN];
   
   while (1) {
-    struct pcap_pkthdr* header;
-    const u_char* packet;
+  	struct pcap_pkthdr* header;
+  	const u_char* packet;
     int res = pcap_next_ex(fp, &header, &packet);
     if (res == 0) continue;
     if (res == -1 || res == -2) break;
-	if(check((u_char *)packet, header->caplen, send_ip, target_mac_address))break;
-
+    if(check((u_char *)packet, header->caplen, send_ip, target_mac_address))break;
   }
+  
   u_char* packet2=(u_char*)malloc(sizeof(u_char)*100);
   uint32_t packet2_len=make_arp_packet(packet2, target_ip, send_ip, mac_address, target_mac_address);
   pcap_sendpacket(fp, packet2, packet2_len);
